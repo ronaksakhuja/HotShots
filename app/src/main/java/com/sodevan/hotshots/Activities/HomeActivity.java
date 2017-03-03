@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
@@ -17,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import com.sodevan.hotshots.Adapters.RecyclerView_Home;
 import com.sodevan.hotshots.Databases.DatabaseHandler;
 import com.sodevan.hotshots.Models.Item;
 import com.sodevan.hotshots.R;
@@ -34,17 +38,28 @@ public class HomeActivity extends AppCompatActivity {
     String encoded_string="0";
     ImageButton screenshot;
     List<Item> list;
+    RecyclerView recycler;
+    RecyclerView_Home adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         final View mView= getLayoutInflater().inflate(R.layout.dialogue,null);
         screenshot= (ImageButton) mView.findViewById(R.id.screenshot);
-        list=new ArrayList<Item>();
+        list=new ArrayList<>();
         mdb = new DatabaseHandler(getApplicationContext());
         activity=HomeActivity.this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+        recycler= (RecyclerView) findViewById(R.id.recycler_view);
+        adapter=new RecyclerView_Home(list);
+        RecyclerView.LayoutManager mlayoutmanager=new LinearLayoutManager(getApplicationContext());
+        recycler.setLayoutManager(mlayoutmanager);
+        recycler.setItemAnimator(new DefaultItemAnimator());
+        recycler.setAdapter(adapter);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -95,8 +110,13 @@ public class HomeActivity extends AppCompatActivity {
                 String[] Aitem = data[i].split("\t");
                 Item item=new Item(Aitem[0],Aitem[1],Aitem[2],Aitem[3],Aitem[4]);
                 list.add(item);
+                adapter.notifyDataSetChanged();
             }
         }
+
+
+
+
 
         Log.d("TAG",list.size()+"");
         mdb.close();
